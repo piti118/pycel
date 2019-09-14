@@ -74,7 +74,7 @@ def averageifs(average_range, *args):
     # Excel reference: https://support.office.com/en-us/article/
     #   AVERAGEIFS-function-48910C45-1FC0-4389-A028-F7C5C3001690
     if not list_like(average_range):
-        average_range = ((average_range, ), )
+        average_range = ((average_range,),)
 
     coords = handle_ifs(args, average_range)
     data = _numerics((average_range[r][c] for r, c in coords), keep_bools=True)
@@ -144,7 +144,7 @@ def countif(rng, criteria):
     # Excel reference: https://support.office.com/en-us/article/
     #   COUNTIF-function-e0de10c6-f885-4e71-abb4-1f464816df34
     if not list_like(rng):
-        rng = ((rng, ), )
+        rng = ((rng,),)
     valid = find_corresponding_index(rng, criteria)
     return len(valid)
 
@@ -359,7 +359,7 @@ def maxifs(max_range, *args):
     # Excel reference: https://support.office.com/en-us/article/
     #   maxifs-function-dfd611e6-da2c-488a-919b-9b6376b28883
     if not list_like(max_range):
-        max_range = ((max_range, ), )
+        max_range = ((max_range,),)
 
     try:
         return max(_numerics(
@@ -374,7 +374,7 @@ def minifs(min_range, *args):
     # Excel reference: https://support.office.com/en-us/article/
     #   minifs-function-6ca1ddaa-079b-4e74-80cc-72eef32e6599
     if not list_like(min_range):
-        min_range = ((min_range, ), )
+        min_range = ((min_range,),)
 
     try:
         return min(_numerics(
@@ -493,7 +493,7 @@ def sumifs(sum_range, *args):
     # Excel reference: https://support.office.com/en-us/article/
     #   SUMIFS-function-C9E748F5-7EA7-455D-9406-611CEBCE642B
     if not list_like(sum_range):
-        sum_range = ((sum_range, ), )
+        sum_range = ((sum_range,),)
 
     return sum(_numerics(
         (sum_range[r][c] for r, c in handle_ifs(args, sum_range)),

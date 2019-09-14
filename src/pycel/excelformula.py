@@ -26,7 +26,6 @@ from pycel.excelutil import (
 from pycel.lib.function_helpers import load_functions
 from pycel.lib.function_info import func_status_msg
 
-
 ADDR_FUNCS_NAMES = '_R_', '_C_', '_REF_'
 
 
@@ -62,13 +61,13 @@ class Tokenizer(tokenizer.Tokenizer):
                     tokens.append(token)
 
             elif (
-                prev_token.matches(type_=Token.FUNC, subtype=Token.CLOSE) or
-                prev_token.matches(type_=Token.PAREN, subtype=Token.CLOSE) or
-                prev_token.type == Token.OPERAND
+                    prev_token.matches(type_=Token.FUNC, subtype=Token.CLOSE) or
+                    prev_token.matches(type_=Token.PAREN, subtype=Token.CLOSE) or
+                    prev_token.type == Token.OPERAND
             ) and (
-                next_token.matches(type_=Token.FUNC, subtype=Token.OPEN) or
-                next_token.matches(type_=Token.PAREN, subtype=Token.OPEN) or
-                next_token.type == Token.OPERAND
+                    next_token.matches(type_=Token.FUNC, subtype=Token.OPEN) or
+                    next_token.matches(type_=Token.PAREN, subtype=Token.OPEN) or
+                    next_token.type == Token.OPERAND
             ):
                 # this whitespace is an intersect operator
                 tokens.append(Token(token.value, Token.OP_IN, Token.INTERSECT))
@@ -157,6 +156,7 @@ class ASTNode:
         self._parent = None
         self._children = None
         self._descendants = None
+        self.as_ref = False
 
     @classmethod
     def create(cls, token, cell=None):
@@ -267,6 +267,9 @@ class OperatorNode(ASTNode):
                           .replace('_R_', '_REF_')
                           .replace('_C_', '_REF_')
                           )
+        elif op == ':':  # range builder convert it into functions
+            ss = '_R_' + ('(_REF_({}).address & ":" & _REF_({}).coordinate)'.format(args[0].emit, args[1].emit)
+                          )
         else:
             if op != ',':
                 op = ' ' + op
@@ -331,7 +334,12 @@ class RangeNode(OperandNode):
         if isinstance(address, AddressMultiAreaRange):
             return ', '.join(self._emit(value=str(addr)) for addr in address)
         else:
-            template = '_R_("{}")' if address.is_range else '_C_("{}")'
+            if self.as_ref:
+                template = '_REF_("{}")'
+            elif address.is_range:
+                template = '_R_("{}")'
+            else:
+                template = '_C_("{}")'
             return template.format(address)
 
 
@@ -370,6 +378,12 @@ class FunctionNode(ASTNode):
         "xor": "x_xor",
     }
 
+    reference_arg_required_map = {  # list of argument position that should be _REF_ and not _C_
+        'offset': [0],
+        'row': [0],
+        'column': [0]
+    }
+
     def __init__(self, *args):
         super(FunctionNode, self).__init__(*args)
         self.num_args = 0
@@ -384,8 +398,16 @@ class FunctionNode(ASTNode):
                 fmt_str.format(n.emit) for n in to_emit)
 
     @property
+    def name(self):
+        return self.value.lower().strip('(')
+
+    @property
+    def reference_arg_position(self):
+        return self.reference_arg_required_map.get(self.name, [])
+
+    @property
     def emit(self):
-        func = self.value.lower().strip('(')
+        func = self.name
 
         if func[0] == func[-1] == '_':
             func = func.upper()
@@ -577,6 +599,7 @@ class ExcelFormula:
                             tokens[i + 1].string == '(' and
                             tokens[i + 3].string == ')'):
                         addrs.append(AddressRange(tokens[i + 2].string[1:-1]))
+
                 self._needed_addresses = uniqueify(addrs)
             else:
                 self._needed_addresses = ()
@@ -777,6 +800,9 @@ class ExcelFormula:
                         raise FormulaParserError(
                             "'{}' operator missing operand".format(
                                 node.token.value))
+                    require_ref = node.value == ':'  # both operand should be ref
+                    arg1.as_ref = require_ref
+                    arg2.as_ref = require_ref
                     tree.add_node(arg1, pos=0)
                     tree.add_node(arg2, pos=1)
                     tree.add_edge(arg1, node)
@@ -795,7 +821,10 @@ class ExcelFormula:
                 if node.num_args:
                     args = stack[-node.num_args:]
                     del stack[-node.num_args:]
+                    ref_arg_pos = set(node.reference_arg_position)
                     for i, a in enumerate(args):
+                        as_ref = i in ref_arg_pos
+                        a.as_ref = as_ref
                         tree.add_node(a, pos=i)
                         tree.add_edge(a, node)
             else:
@@ -825,7 +854,7 @@ class ExcelFormula:
         if plugins is None:
             modules = ()
         elif isinstance(plugins, str):
-            modules = (plugins, )
+            modules = (plugins,)
         else:
             modules = tuple(plugins)
         modules = tuple(importlib.import_module(m)
@@ -871,6 +900,7 @@ class ExcelFormula:
             name_space['_R_'] = evaluate_range
             name_space['_REF_'] = AddressRange.create
             name_space['pi'] = math.pi
+            name_space['str'] = str
 
             # function to fixup the operands
             name_space['excel_operator_operand_fixup'] = \

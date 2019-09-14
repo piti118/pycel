@@ -308,11 +308,12 @@ linest_inputs = [
     FormulaTest(
         '=LINEST(B32:(INDEX(B32:B119,MATCH(0,B32:B119,-1),1)),(F32:(INDEX('
         'B32:F119,MATCH(0,B32:B119,-1),5)))^{1,2,3,4})',
-        'B32:B119|0|B32:B119|1|-|MATCH|1|INDEX|B32:|B32:F119|0|B32:B119|1|'
-        '-|MATCH|5|INDEX|F32:|1|2|3|4|ARRAYROW|ARRAY|^|LINEST',
-        'linest(b32:(index(_R_("B32:B119"), match(0, _R_("B32:B119"), -1), 1)),'
-        ' f32:(index(_R_("B32:F119"), match(0, _R_("B32:B119"), -1), 5)), '
-        'degree=-1)[-2]'),
+        'B32|B32:B119|0|B32:B119|1|-|MATCH|1|INDEX|:|F32|B32:F119|0|B32:B119|1|-'
+        '|MATCH|5|INDEX|:|1|2|3|4|ARRAYROW|ARRAY|^|LINEST',
+        'linest(_R_(_REF_(_REF_("B32")).address & ":" & _REF_(index(_R_("B32:B119"), '
+        'match(0, _R_("B32:B119"), -1), 1)).coordinate), '
+        '(_R_(_REF_(_REF_("F32")).address & ":" & _REF_(index(_R_("B32:F119"), '
+        'match(0, _R_("B32:B119"), -1), 5)).coordinate)), degree=-1)[-2]'),
     FormulaTest(
         '=LINESTMARIO(G2:G17,E2:E17,FALSE)',
         'G2:G17|E2:E17|FALSE|LINESTMARIO',

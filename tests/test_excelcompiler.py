@@ -28,7 +28,6 @@ def test_end_2_end(excel, fixture_xls_path):
     for excel_compiler in (ExcelCompiler(excel=excel),
                            ExcelCompiler(excel=excel.workbook),
                            ExcelCompiler(fixture_xls_path)):
-
         # test evaluation
         assert -0.02286 == round(excel_compiler.evaluate('Sheet1!D1'), 5)
 
@@ -52,9 +51,9 @@ def test_round_trip_through_json_yaml_and_pickle(
         excel_compiler, fixture_xls_path):
     excel_compiler.evaluate('Sheet1!D1')
     excel_compiler.extra_data = {1: 3}
-    excel_compiler.to_file(file_types=('pickle', ))
-    excel_compiler.to_file(file_types=('yml', ))
-    excel_compiler.to_file(file_types=('json', ))
+    excel_compiler.to_file(file_types=('pickle',))
+    excel_compiler.to_file(file_types=('yml',))
+    excel_compiler.to_file(file_types=('json',))
 
     # read the spreadsheet from json, yaml and pickle
     excel_compiler_json = ExcelCompiler.from_file(
@@ -92,7 +91,7 @@ def test_filename_ext(excel_compiler, fixture_xls_path):
             pass
 
     excel_compiler.to_file(excel_compiler.filename)
-    excel_compiler.to_file(json_name, file_types=('json', ))
+    excel_compiler.to_file(json_name, file_types=('json',))
 
     assert os.path.exists(pickle_name)
     assert os.path.exists(yaml_name)
@@ -101,12 +100,11 @@ def test_filename_ext(excel_compiler, fixture_xls_path):
 
 def test_deserialize_filename(
         excel_compiler, fixture_xls_path, serialization_override_path):
-
     for serialization_filename, expected in (
-        # When the serialization path is different than the workbook path
-        (serialization_override_path, excel_compiler.filename),
-        # When the serialization path is the same as the workbook
-        ('{}.yml'.format(excel_compiler.filename), excel_compiler.filename),
+            # When the serialization path is different than the workbook path
+            (serialization_override_path, excel_compiler.filename),
+            # When the serialization path is the same as the workbook
+            ('{}.yml'.format(excel_compiler.filename), excel_compiler.filename),
     ):
         excel_compiler._to_text(serialization_filename)
         deserialized = excel_compiler._from_text(serialization_filename)
@@ -149,7 +147,6 @@ def test_hash_matches(excel_compiler):
 
 
 def test_pickle_file_rebuilding(excel_compiler):
-
     input_addrs = ['Sheet1!A11']
     output_addrs = ['Sheet1!D1']
 
@@ -265,7 +262,6 @@ def test_value_tree_str(excel_compiler):
 
 
 def test_value_tree_str_circular(circular_ws):
-
     out_address = 'Sheet1!B8'
     circular_ws.evaluate(out_address)
 
@@ -389,7 +385,6 @@ def test_validate_calcs_excel_compiler(excel_compiler):
 
 
 def test_evaluate_entire_row_column(excel_compiler):
-
     value = excel_compiler.evaluate(AddressRange('Sheet1!A:A'))
     expected = excel_compiler.evaluate(AddressRange('Sheet1!A1:A18'))
     assert value == expected
@@ -456,7 +451,7 @@ def test_evaluate_conditional_formatting(cond_format_ws):
     assert len(formats[2]) == 3
 
     # read the spreadsheet from yaml
-    cond_format_ws.to_file(file_types=('yml', ))
+    cond_format_ws.to_file(file_types=('yml',))
     cond_format_ws_yaml = ExcelCompiler.from_file(
         cond_format_ws.filename + '.yml')
     cells_addrs[0] = AddressCell('Sheet1!B2')
@@ -464,7 +459,7 @@ def test_evaluate_conditional_formatting(cond_format_ws):
     assert formats2 == formats3
 
     # read the spreadsheet from pickle
-    cond_format_ws.to_file(file_types=('pkl', ))
+    cond_format_ws.to_file(file_types=('pkl',))
     cond_format_ws_pkl = ExcelCompiler.from_file(
         cond_format_ws.filename + '.pkl')
     cells_addrs[0] = AddressCell('Sheet1!B2')
@@ -553,7 +548,7 @@ def test_compile_error_message_line_number(excel_compiler):
 def test_init_cell_address_error(excel):
     with pytest.raises(ValueError):
         _CellRange(ExcelWrapper.RangeData(
-            AddressCell('A1'), '', ((0, ),)))
+            AddressCell('A1'), '', ((0,),)))
 
 
 def test_cell_range_repr(excel):
@@ -628,7 +623,6 @@ def test_structured_ref(excel_compiler):
 
 
 def test_multi_area_range_defined_name(fixture_xls_copy):
-
     wb = Workbook()
     ws = wb.active
     ws['A1'] = 1
@@ -674,7 +668,7 @@ def test_unbounded_countifs(fixture_xls_copy):
     assert (2, 9) == excel_compiler.evaluate(output_addrs)
 
     # read the spreadsheet from pickle
-    excel_compiler.to_file(file_types=('pickle', ))
+    excel_compiler.to_file(file_types=('pickle',))
     excel_compiler = ExcelCompiler.from_file(excel_compiler.filename)
 
     # test evaluation
@@ -685,16 +679,16 @@ def test_unbounded_countifs(fixture_xls_copy):
 
 @pytest.mark.parametrize(
     'msg, formula', (
-        ("Function XYZZY is not implemented. "
-         "XYZZY is not a known Excel function", '=xyzzy()'),
-        ("Function PLUGH is not implemented. "
-         "PLUGH is not a known Excel function\n"
-         "Function XYZZY is not implemented. "
-         "XYZZY is not a known Excel function", '=xyzzy() + plugh()'),
-        ('Function ARABIC is not implemented. '
-         'ARABIC is in the "Math and trigonometry" group, '
-         'and was introduced in Excel 2013',
-         '=ARABIC()'),
+            ("Function XYZZY is not implemented. "
+             "XYZZY is not a known Excel function", '=xyzzy()'),
+            ("Function PLUGH is not implemented. "
+             "PLUGH is not a known Excel function\n"
+             "Function XYZZY is not implemented. "
+             "XYZZY is not a known Excel function", '=xyzzy() + plugh()'),
+            ('Function ARABIC is not implemented. '
+             'ARABIC is in the "Math and trigonometry" group, '
+             'and was introduced in Excel 2013',
+             '=ARABIC()'),
     )
 )
 def test_unknown_functions(fixture_dir, msg, formula):
@@ -747,7 +741,6 @@ def test_evaluate_empty_intersection(fixture_dir):
 
 
 def test_plugins(excel_compiler):
-
     input_addrs = ['Sheet1!A11']
     output_addrs = ['Sheet1!D1']
     excel_compiler.trim_graph(input_addrs, output_addrs)
@@ -767,7 +760,7 @@ def test_plugins(excel_compiler):
             calc_and_check()
 
     with mock.patch('pycel.excelformula.ExcelFormula.default_modules', ()):
-        excel_compiler._plugin_modules = ('pycel.excellib', )
+        excel_compiler._plugin_modules = ('pycel.excellib',)
         calc_and_check()
 
     with mock.patch('pycel.excelformula.ExcelFormula.default_modules', ()):
@@ -775,7 +768,7 @@ def test_plugins(excel_compiler):
         calc_and_check()
 
     with mock.patch('pycel.excelformula.ExcelFormula.default_modules',
-                    ('pycel.excellib', )):
+                    ('pycel.excellib',)):
         excel_compiler._plugin_modules = None
         calc_and_check()
 
@@ -786,16 +779,16 @@ def test_plugins(excel_compiler):
 
 @pytest.mark.parametrize(
     'a2, b3, iters, result', (
-        (0.2, 100, 3, 16.8),
-        (0.2, 100, 4, 16.64),
-        (0.2, 100, 5, 16.672),
-        (0.2, 200, 3, 33.6),
-        (0.2, 200, 4, 33.28),
-        (0.2, 200, 5, 33.344),
-        (0.2, 500, 3, 84),
-        (0.2, 500, 4, 83.2),
-        (0.2, 500, 5, 83.36),
-        (0.1234, 500, 3, 55.025760452),
+            (0.2, 100, 3, 16.8),
+            (0.2, 100, 4, 16.64),
+            (0.2, 100, 5, 16.672),
+            (0.2, 200, 3, 33.6),
+            (0.2, 200, 4, 33.28),
+            (0.2, 200, 5, 33.344),
+            (0.2, 500, 3, 84),
+            (0.2, 500, 4, 83.2),
+            (0.2, 500, 5, 83.36),
+            (0.1234, 500, 3, 55.025760452),
     )
 )
 def test_validate_circular_referenced_iters(
@@ -810,9 +803,9 @@ def test_validate_circular_referenced_iters(
 
 @pytest.mark.parametrize(
     'start, inc, tol, result', (
-        (50, 0.1, 0.09, 40),
-        (50, 0.1, 0.1, 49.9),
-        (50, 0.1, 0.11, 49.9),
+            (50, 0.1, 0.09, 40),
+            (50, 0.1, 0.1, 49.9),
+            (50, 0.1, 0.11, 49.9),
     )
 )
 def test_validate_circular_referenced_tol(
@@ -875,7 +868,6 @@ def test_validate_circular_referenced(circular_ws):
 
 def test_circular_mismatch_warning(
         fixture_xls_path, fixture_xls_path_circular):
-
     with mock.patch('pycel.excelcompiler.pycel_logger') as log:
         assert log.warning.call_count == 0
 
@@ -890,3 +882,21 @@ def test_circular_mismatch_warning(
 
         ExcelCompiler(fixture_xls_path_circular, cycles=True)
         assert log.warning.call_count == 2
+
+
+def test_offset_range(offset_range_ws):
+    # assert offset_range_ws.evaluate('Sheet2!A1') == 14
+    assert offset_range_ws.evaluate('Sheet1!A1') == 14
+
+    offset_range_ws.set_value('Sheet1!C3', 50)
+    assert offset_range_ws.evaluate('Sheet1!A1') == 60
+
+    offset_range_ws.set_value('Sheet1!C2', 0)
+    offset_range_ws.recalculate() # needs recalculation since the dependency graph is dynamic
+    assert offset_range_ws.evaluate('Sheet1!A1') == 55
+    #
+    assert offset_range_ws.evaluate('Sheet2!A1') == -117
+    offset_range_ws.set_value('Sheet2!B10', 3)
+    assert offset_range_ws.evaluate('Sheet2!A1') == -135
+
+

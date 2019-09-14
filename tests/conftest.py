@@ -96,6 +96,11 @@ def cond_format_ws(fixture_xls_copy):
     return ExcelCompiler(fixture_xls_copy('cond-format.xlsx'))
 
 
+@pytest.fixture('session')
+def offset_range_ws(fixture_xls_copy):
+    return ExcelCompiler(fixture_xls_copy('offset_range.xlsx'))
+
+
 @pytest.fixture
 def circular_ws(fixture_xls_path_circular):
     return ExcelCompiler(fixture_xls_path_circular, cycles=True)
