@@ -28,6 +28,7 @@ def test_end_2_end(excel, fixture_xls_path):
     for excel_compiler in (ExcelCompiler(excel=excel),
                            ExcelCompiler(excel=excel.workbook),
                            ExcelCompiler(fixture_xls_path)):
+
         # test evaluation
         assert -0.02286 == round(excel_compiler.evaluate('Sheet1!D1'), 5)
 
@@ -147,6 +148,7 @@ def test_hash_matches(excel_compiler):
 
 
 def test_pickle_file_rebuilding(excel_compiler):
+
     input_addrs = ['Sheet1!A11']
     output_addrs = ['Sheet1!D1']
 
@@ -623,6 +625,7 @@ def test_structured_ref(excel_compiler):
 
 
 def test_multi_area_range_defined_name(fixture_xls_copy):
+
     wb = Workbook()
     ws = wb.active
     ws['A1'] = 1
@@ -892,7 +895,7 @@ def test_offset_range(offset_range_ws):
     assert offset_range_ws.evaluate('Sheet1!A1') == 60
 
     offset_range_ws.set_value('Sheet1!C2', 0)
-    offset_range_ws.recalculate() # needs recalculation since the dependency graph is dynamic
+    offset_range_ws.recalculate()  # needs recalculation since the dependency graph is dynamic
     assert offset_range_ws.evaluate('Sheet1!A1') == 55
     #
     assert offset_range_ws.evaluate('Sheet2!A1') == -117

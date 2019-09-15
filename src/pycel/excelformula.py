@@ -599,7 +599,6 @@ class ExcelFormula:
                             tokens[i + 1].string == '(' and
                             tokens[i + 3].string == ')'):
                         addrs.append(AddressRange(tokens[i + 2].string[1:-1]))
-
                 self._needed_addresses = uniqueify(addrs)
             else:
                 self._needed_addresses = ()

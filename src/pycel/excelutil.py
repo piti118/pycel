@@ -135,7 +135,7 @@ class AddressMixin:
 
 
 class AddressRange(collections.namedtuple(
-    'Address', 'address sheet start end coordinate'), AddressMixin):
+        'Address', 'address sheet start end coordinate'), AddressMixin):
     """ Helper class for constructing, validating and accessing Range Addresses
 
     **Tuple Attributes:**
@@ -328,9 +328,6 @@ class AddressRange(collections.namedtuple(
         elif isinstance(address, AddressCell):
             return AddressCell(address, sheet=sheet)
 
-        elif isinstance(address, tuple) and len(address) == 2:
-            return AddressRange(address, sheet=sheet)
-
         sheetname, addr = split_sheetname(address, sheet=sheet)
         addr_tuple, sheetname = range_boundaries(
             addr, sheet=sheetname, cell=cell)
@@ -344,7 +341,7 @@ class AddressRange(collections.namedtuple(
 
 
 class AddressCell(collections.namedtuple(
-    'AddressCell', 'address sheet col_idx row coordinate'), AddressMixin):
+        'AddressCell', 'address sheet col_idx row coordinate'), AddressMixin):
     """ Helper class for constructing, validating and accessing Cell Addresses
 
     **Tuple Attributes:**
@@ -783,8 +780,8 @@ def r1c1_boundaries(address, cell=None, sheet=None):
 
     min_col, min_row, max_col, max_row = (
         g if g is None else from_relative_to_absolute(g) for g in (
-        m.group(n) for n in ('min_col', 'min_row', 'max_col', 'max_row')
-    )
+            m.group(n) for n in ('min_col', 'min_row', 'max_col', 'max_row')
+        )
     )
 
     items_present = (min_col is not None, min_row is not None,
@@ -1211,6 +1208,7 @@ class ExcelCmp(collections.namedtuple('ExcelCmp', 'cmp_type value empty')):
 
 
 def build_operator_operand_fixup(capture_error_state):
+
     def array_fixup(left_op, op, right_op):
         """use numpy broadcasting for ranges"""
         # ::TODO:: this needs better error processing to match excel behavior

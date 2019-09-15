@@ -16,7 +16,7 @@ ALL_ARG_INDICES = frozenset(range(512))
 
 
 def excel_helper(cse_params=None, bool_params=None,
-                 err_str_params=-1, number_params=None, ref_params=None):
+                 err_str_params=-1, number_params=None):
     """ Decorator to annotate a function with info on how to process params
 
     All parameters are encoded as:
@@ -41,8 +41,7 @@ def excel_helper(cse_params=None, bool_params=None,
             cse_params=cse_params,
             bool_params=bool_params,
             err_str_params=err_str_params,
-            number_params=number_params,
-            ref_param=[] if ref_params is None else ref_params
+            number_params=number_params
         ))
         return f
 
